@@ -1,0 +1,358 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="fr">
+<head>
+    <meta charset=utf-8>
+	<!--FRANÇAIS
+	 | Version 10.2
+	 | Copyright 2012 Esri
+	 |
+	 | ArcGIS for Canadian Municipalities / ArcGIS pour les municipalités canadiennes
+	 | Citizen Service Request v10.2.0 / Demande de service municipal v10.2.0
+	 | This file was modified by Esri Canada - Copyright 2014 Esri Canada
+	 |
+	 |
+	 | Licensed under the Apache License, Version 2.0 (the "License");
+	 | you may not use this file except in compliance with the License.
+	 | You may obtain a copy of the License at
+	 |
+	 |    http://www.apache.org/licenses/LICENSE-2.0
+	 |
+	 | Unless required by applicable law or agreed to in writing, software
+	 | distributed under the License is distributed on an "AS IS" BASIS,
+	 | WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+	 | See the License for the specific language governing permissions and
+	 | limitations under the License.
+	-->
+    <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Demande de service municipal</title>
+	<link rel="icon" type="image/png" href="images/favicon.png">
+	<link rel="shortcut icon" type="image/png" href="images/favicon.png">
+	<link rel="apple-touch-icon" href="images/logo.png">
+    <link rel="apple-touch-icon-precomposed" href="images/logo.png">
+    <link id="stylesheet" href='http://js.arcgis.com/3.8/js/dojo/dojox/mobile/themes/iPhone/iPhone.css"'
+        rel='stylesheet'>
+    <link rel="stylesheet" type="text/css" href="http://js.arcgis.com/3.8/js/esri/css/esri.css">
+    <link href="styles/serviceRequest.css" rel="stylesheet" type="text/css">
+    <link rel="Stylesheet" id="dynamicStyleSheet">
+    <script type="text/javascript" src="js/baseMapGallery.js"></script>
+    <script type="text/javascript">
+            var dojoConfig = {
+				locale: "fr-ca", <!--SET LANGUAGE/CONFIGURER LA LANGUE-->
+                async: false,
+                parseOnLoad: true,
+                mblHideAddressBar: false,
+                packages: [{
+                    name: "js",
+                    location: location.pathname.replace(/\/[^/]+$/, '') + '/js'
+                }]
+            };
+    </script>
+    <script type="text/javascript" src="http://js.arcgis.com/3.8"></script>
+    <script type="text/javascript" src="js/baseMapGallery.js"></script>
+    <script type="text/javascript" src="js/modernizr-2.5.3.js"></script>
+    <script type="text/javascript" src="js/locator.js"></script>
+    <script type="text/javascript" src="js/utils.js"></script>
+    <script type="text/javascript" src="js/homePage.js"></script>
+</head>
+<body onorientationchange="OrientationChanged();">
+    <div id="divSplashScreenContainer" class="divSplashScreenContainer" style="display: none;">
+		<div id="divSplashScreenContainerInner">
+			<div id="divSplashScreenContent" class="divSplashScreenContent">
+				<div id="divSplashContent" class="divSplashContent">
+				</div>
+				<div id="splashClose" class="simpleButton" style="width: 75px; margin-top: 7px;" onclick="HideSplashScreenMessage();" tabindex="1" onkeyup="accessClick(event,'HideSplashScreenMessage',null);" role="button">
+				</div>
+			</div>
+		</div>
+    </div>
+	<div id="instructions">
+		<strong></strong>
+		<div style="float:right; height:15px; width:15px;"><img src="images/close_mini.png" alt="Close Instructions" title="Close Instructions" onclick="dojo.byId('instructions').style.display = 'none';" style="height:100%; width:auto; cursor:pointer;"></div>
+	</div>
+    <div id="divApplicationHeader" onclick="clearAutocomplete();">
+		<div id="divButtons">
+			<!--Search-->
+			<img id="imgSearch" src="images/search.png" class="imgOptions" onclick="showHideSearch();" onkeyup="accessClick(event, 'showHideSearch', null);" style="display:none; cursor: pointer" tabindex="0" role="button" aria-expanded="false">
+			<div id="divAddressSearch" class="searchInline" style="display:none; font-size:12px;">
+				<form action="javascript:void(0);" onsubmit="LocateAddressCML2(false)">
+					<div id="radioDiv" style="display:inline-block; vertical-align:top; margin-top:2px;">
+						<fieldset style="border:0px;">
+							<legend id="searchLegend" style="color:white; font-weight:bold;"></legend>
+							<input type="radio" id="searchAddress" class="focusGlow" name="searchType" value="address" checked><label for="searchAddress"></label>
+							<input type="radio" id="searchRequest" class="focusGlow" name="searchType" value="request"><label for="searchRequest"></label>
+						</fieldset>
+					</div>
+					<div id="inputDiv" style="display:inline-block; vertical-align:top; margin-top:12px;">
+						<input id="searchInput" type="text" class="focusGlowSquare" autocomplete="off" onkeyup="LocateAddressCML2(true,event);selectAutocomplete(event);" required><input id="searchSubmit" class="focusGlowSquare" type="submit" value=" ">
+						<div id="autocomplete"></div>
+					</div>
+				</form>
+				<div id="noResultsWindowed">
+				</div>
+			</div>
+			<!--Geolocate-->
+			<img id="imgGeolocate" src="images/geolocation.png" class="imgOptions" onclick="ShowMyLocation();" onkeyup="accessClick(event, 'ShowMyLocation', null);" style="cursor: pointer" tabindex="0" role="button">
+			<!--Basemap-->
+			<img id="imgBaseMap" src="images/basemap.png" class="imgOptions" style="cursor: pointer; display:none;" onclick="ShowBaseMaps()" onkeyup="accessClick(event, 'ShowBaseMaps', null);" tabindex="0" role="button" aria-expanded="false"><div id="divLayerContainer" class="divLayerContainer hideContainerHeight">
+				<div id="divLayerContentHolder" class="divLayerContentHolder">
+					<div id="layerList">
+					</div>
+				</div>
+			</div>
+			<!--Share-->
+			<img id="imgShare" src="images/share.png" class="imgOptions" onclick="ShareLink(true);" onkeyup="accessClick(event, 'ShareLink', true)" style="cursor: pointer" tabindex="0" role="button" aria-expanded="false">
+			<div id="divAppContainer" class="divAppContainer hideContainerHeight">
+				<div id="divAppHolder" class="divAppHolder">
+					<div style="width:100%; padding-bottom:5px;"></div>
+					<img class="imgShare" id="imgFacebook" src="images/img_facebook.png" onclick="Share('facebook')" onkeyup="accessClick(event, 'Share', 'facebook');" tabindex="-1" role="button">
+					<img class="imgShare" id="imgTwitter" src="images/img_twitter.png" onclick="Share('twitter')" onkeyup="accessClick(event, 'Share', 'twitter');" role="button" tabindex="-1">
+					<img class="imgShare" id="imgMail" src="images/img_email.png" onclick="Share('mail')" onkeyup="accessClick(event, 'Share', 'mail');" role="button" tabindex="-1">
+				</div>
+			</div>
+			<!--Help-->
+			<img id="imgHelp" src="images/help.png" class="imgOptions" style="cursor: pointer" tabindex="0" role="button">
+			<!--LANGUAGE BUTTON-->
+			<img id="imgLang" src="" class="imgOptions" tabIndex="0" role="button" style="width:auto !important; display:none;">
+		</div>
+		<div id="divHeaderTitle">
+		</div>
+    </div>
+	<div style="height:100%; width:100%;">
+		<div id="divMainContainer" onclick="clearAutocomplete();">
+			<div id="mapNavigation" style="display:none;">
+				<strong></strong><br>
+				<figure>
+					<img src="images/keyboardNavigation.png" alt="">
+					<figcaption></figcaption>
+				</figure>
+			</div>
+			<div id="crosshair" style="position: absolute; color:black; z-index:1000; font-size:xx-large; width:26px; height:40px; display:none;"><img alt="" src="images/crosshair.png"></div>
+			<div id="accessForward" tabindex="0" style="visibility:0px; height:0px; width:0px;"></div> <!--CanAccess: TAB DETECTOR-->
+			<div id="map" data-dojo-type="dojox.mobile.View" data-dojo-props="selected: true" tabindex="-1" role="application">
+			<div id="accessBackward" tabindex="0" style="visibility:0px; height:0px; width:0px;"></div> <!--CanAccess: TAB DETECTOR-->
+			</div>
+		</div>
+	</div>
+   <div id="divCreateRequest" align="center" class="divCreateRequest opacityHideAnimation">
+        <table cellpadding="0px" cellspacing="0px" style="width: 100%; height: 100%;">
+            <tr align="center" valign="middle">
+                <td>
+                    <div id="divCreateRequestContainer" class="hideContainer divCreateRequestContainer">
+                        <table cellpadding="0px" cellspacing="0px" class="tblHeader" style="padding: 1px; width: 100%;">
+                            <tr style="height: 30px;" align="center" valign="top">
+                                <td id="createPopUpTitle" class="tdHeader" align="left" valign="middle" style="padding-left: 7px; font-weight: bolder; width: 90%">
+                                </td>
+                                <td align="right" style="width: 10%;">
+                                    <img src="images/close.png" id="imgClose" class="imgOptions" style="cursor: pointer; padding-right: 1px;" onclick="HideCreateRequestContainer();" onkeyup="accessClick(event,'HideCreateRequestContainer',null);" tabindex="0" role="button">
+                                </td>
+                            </tr>
+                        </table>
+                        <div style="height: 2px;">
+                        </div>
+                        <div align="center" id="divCreateRequestContent" class="divCreateRequestContent">
+							<form id="formFile" action="javascript:void(0);" onsubmit="SubmitIssueDetails();">
+								<div id="divCreateRequestScrollContent" class="divCreateRequestScrollContent" style="left: 0px; border-bottom-width: 2px; border-left-width: 2px; border-right-width: 2px; border-top-width: 2px; padding:0px; margin:0px;">
+									<table id="submitTable" class="submitTable" style="color: #fff;" cellspacing="0px;">
+										<tr class="trRowStyle">
+											<td id="createPopUpType" class="labelCell">
+												<label for="requestTypeSel"></label>
+											</td>
+											<td style="text-align:left;">
+												<select id="requestTypeSel" class="txtSelect focusGlowSquare" size="4"></select>
+											</td>
+										</tr>
+										<tr class="trTextAreaRowStyle">
+											<td id="createPopUpComments" class="labelCell">
+												<label for="txtDescription"></label>
+											</td>
+											<td style="text-align:left;">
+												<textarea valign="middle" maxlength="250" id="txtDescription" class="txtDescription focusGlowSquare" onkeypress="if(dojo.isIE){return ImposeMaxLength(this, 249);}else{return ImposeMaxLength(this, 250);}"></textarea>
+											</td>
+										</tr>
+										<tr class="trRowStyle" id="nameRow">
+											<td id="createPopUpName" class="labelCell">
+												<label for="txtName"></label>
+											</td>
+											<td style="text-align:left;">
+												<input valign="middle" maxlength="150" type="text" id="txtName" class="txtBox focusGlowSquare">
+											</td>
+										</tr>
+										<tr class="trRowStyle" id="phoneRow">
+											<td id="createPopUpPhone" class="labelCell">
+												<label for="txtPhone"></label>
+											</td>
+											<td style="text-align:left;">
+												<input valign="middle" type="tel" id="txtPhone" class="txtBox focusGlowSquare">
+											</td>
+										</tr>
+										<tr class="trRowStyle" id="emailRow">
+											<td id="createPopUpEmail" class="labelCell">
+												<label for="txtMail"></label>
+											</td>
+											<td style="text-align:left;">
+												<input valign="middle" type="email" id="txtMail" class="txtBox focusGlowSquare">
+											</td>
+										</tr>
+										<tr id="trFileUpload" class="trRowStyle">
+											<td id="createPopUpAttach" class="labelCell">
+												<label for="txtFileName"></label>
+											</td>
+											<td style="text-align:left;">
+												<table cellspacing="0" cellpadding="0" style="margin-left: 4px; width: 95%;">
+													<tr>
+														<td class="tdAttach">
+															<input id="txtFileName" class="fileChoose" accept="image/*" capture="camera" size="25" type="file" name="attachment">
+														</td>
+													</tr>
+												</table>
+											</td>
+										</tr>
+									</table>
+								</div>
+								<div id="spancreateerror" style="width: 100%; height: 15px; border: 2px;
+									vertical-align: top; padding-top: 0px; text-align:left;">
+									<span id="spanServiceErrorMessage" style="color: Yellow; margin-left: 4px; vertical-align: middle;">
+									</span>
+								</div>
+								<div style="height: 0px; width: 100%; margin-top:-5px;">
+								</div>
+								<div id="submitDiv" class="submitDiv" style="width: 100%; border: 2px;">
+									<table cellspacing="0px" style="width: 100%; margin-bottom: 10px">
+										<tr style="height: 15px;">
+											<td colspan="2" align="center" style="padding-right: 10px;">
+												<table>
+													<tr>
+														<td>
+															<input type="submit" class="simpleButton">
+														</td>
+														<td>
+															<div id="cancelButton" class="simpleButton" style="width: 75px; margin-top: 7px;" onclick="HideCreateRequestContainer();" tabindex="0" onkeyup="accessClick(event,'HideCreateRequestContainer',null);" role="button">
+															</div>
+														</td>
+													</tr>
+												</table>
+											</td>
+										</tr>
+									</table>
+								</div>
+							</form>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div id="divInfoContainer" align="center" class="divInfoContainer opacityHideAnimation">
+        <table cellpadding="0px" cellspacing="0px" style="width: 100%; height: 100%;">
+            <tr align="center" valign="middle">
+                <td>
+                    <div align="left" id="divInfoContent" class="hideContainer divInfoContent">
+                        <table id="tblHeader" class="tblHeader" style="width: 100%; padding: 1px" cellpadding="0px" cellspacing="0px">
+                            <tr style="height: 30px;" align="center" valign="top">
+                                <td align="left" id="tdLabel" valign="middle" style="padding-left: 7px; width: 98%">
+                                    <span id="tdInfoHeader" class="tdInfoHeader"></span>
+                                </td>
+                                <td id="tdImages">
+                                    <table cellpadding="0px" cellspacing="0px" align="right">
+                                        <tr>
+                                            <td id="tdDirections" align="right">
+                                                <img class="infoOptions" id="imgDirections" onclick="ShowInfoDirectionsView();" onkeyup="accessClick(event,'ShowInfoDirectionsView',null);" tabindex="0" role="button">
+                                            </td>
+                                            <td id="tdComments" align="right">
+                                                <img src="images/comments.png" class="infoOptions" id="imgComments" onclick="ShowCommentsView();" onkeyup="accessClick(event,'ShowCommentsView',null);" tabindex="0" role="button">
+                                            </td>
+                                            <td align="right">
+                                                <img id="closeDisplay" src="images/close.png" class="infoOptions" style="cursor: pointer;" onclick="HideInfoContainer();" onkeyup="accessClick(event,'HideInfoContainer',null);" tabindex="0" role="button">
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                        </table>
+                        <div id="divInfoDetails" class="divInfoDetails" style="color: #fff;">
+                            <div id="divInfoDetailsScroll" class="divInfoDetailsScroll">
+                                <table id="tblInfoDetails" cellpadding="0px" cellspacing="0px" style="width: 100%; padding-top: 5px; padding-left: 2px">
+                                </table>
+                            </div>
+                        </div>
+                        <div id="divInfoComments" class="divInfoComments" style="color: #fff; display: none;">
+                            <div align="left" id="divCommentsView">
+                                <table cellpadding="0px" cellspacing="0px" style="height: 35px; cursor: pointer;" onclick="ShowAddCommentsView();">
+                                    <tr align="left">
+                                        <td style="width: 37px;">
+                                            <img src="images/addcomment.png" class="imgOptions" onkeyup="accessClick(event,'ShowAddCommentsView',null);" tabindex="0" role="button">
+                                        </td>
+                                        <td id="addCommentTitle">
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div id="divCommentsList">
+                                <div id="divCommentsContainer" class="divCommentsContainer">
+                                    <div id="divCommentsContent" class="divCommentsContent">
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="divAddComment" style="display: none; margin: 2px;">
+                                <div id="divCmtIpContainer" class="divCmtIpContainer">
+                                    <div id="divCmtIpContent" class="divCmtIpContent" style="width: 100%">
+                                        <table cellpadding="2px" cellspacing="0px" style="width: 100%;">
+                                            <tr style="height: 20px">
+                                                <td id="ratingTitle" valign="middle" style="width: 20px">
+                                                </td>
+                                                <td align="left">
+                                                    <ul readonly="false" id="commentRating" value="0" numstars="5" style="width: 150px; height: 100%; margin: 0px 0px 0px 0px;">
+                                                </td>
+                                            </tr>
+                                            <tr valign="top">
+                                                <td id="commentTitle" align="left" colspan="2">
+                                                </td>
+                                            </tr>
+                                            <tr valign="top">
+                                                <td colspan="2">
+                                                    <textarea maxlength="250" class="txtArea focusGlow" id="txtComments" onkeypress="if(dojo.isIE){return ImposeMaxLength(this, 249);}else{return ImposeMaxLength(this, 250);}"></textarea>
+                                                </td>
+                                            </tr>
+                                            <tr style="height: 25px;">
+                                                <td colspan="2" align="left" style="height: 20px;">
+                                                    <span id="spanCommentError" style="display: none; color: Yellow; margin-top: 3px; word-wrap: break-word;"></span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td align="center" colspan="2">
+                                                    <table style="margin-left: auto; margin-right: auto">
+                                                        <tr>
+                                                            <td>
+																<div id="btnAddComments" class="simpleButton" style="width: 75px; margin-top: 7px;" onclick="AddRequestComment();" tabindex="0" onkeyup="accessClick(event,'AddRequestComment',null);" role="button">
+																</div>
+															</td>
+															<td>
+																<div id="btnCancelComments" class="simpleButton" style="width: 75px; margin-top: 7px;" onclick="ResetTextArea();" tabindex="0" onkeyup="accessClick(event,'ResetTextArea',null);" role="button">
+																</div>
+															</td>
+                                                         </tr>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div id="divLoadingIndicator" class="divLoadingIndicator" style="display: none;">
+        <table cellpadding="0px" cellspacing="0px" style="width: 100%; height: 100%;">
+            <tr align="center" valign="middle">
+                <td>
+                    <img src="images/loader.gif" alt="">
+                </td>
+            </tr>
+        </table>
+    </div>
+</body>
+</html>
