@@ -3,7 +3,7 @@
  | Copyright 2012 Esri
  |
  | ArcGIS for Canadian Municipalities / ArcGIS pour les municipalités canadiennes
- | Citizen Service Request v10.2.0 / Demande de service municipal v10.2.0
+ | Citizen Service Request v10.2.0.1 / Demande de service municipal v10.2.0.1
  | This file was modified by Esri Canada - Copyright 2014 Esri Canada
  |
  |
@@ -21,7 +21,6 @@
 */
 dojo.require("dojo.window");
 dojo.require("dojo.date.locale");
-dojo.require("dojox.mobile.View");
 dojo.require("esri.map");
 dojo.require("esri.tasks.geometry");
 dojo.require("esri.tasks.locator");

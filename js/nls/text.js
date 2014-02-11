@@ -1,7 +1,7 @@
 /*ENGLISH
  |
  | ArcGIS for Canadian Municipalities / ArcGIS pour les municipalités canadiennes
- | Citizen Service Request v10.2.0 / Demande de service municipal v10.2.0
+ | Citizen Service Request v10.2.0.1 / Demande de service municipal v10.2.0.1
  | This file was written by Esri Canada - Copyright 2014 Esri Canada
  |
  |
