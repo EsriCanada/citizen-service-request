@@ -3,7 +3,7 @@
  | Copyright 2012 Esri
  |
  | ArcGIS for Canadian Municipalities / ArcGIS pour les municipalités canadiennes
- | Citizen Service Request v10.2.0.1 / Demande de service municipal v10.2.0.1
+ | Citizen Service Request v10.2.0.2 / Demande de service municipal v10.2.0.2
  | This file was modified by Esri Canada - Copyright 2014 Esri Canada
  |
  |
@@ -29,6 +29,7 @@ dojo.require("esri.layers.FeatureLayer");
 dojo.require("js.config");
 dojo.require("js.date");
 dojo.require("js.InfoWindow");
+dojo.require("esri.dijit.Legend");
 
 //CanMod: Load internationalization object
 var intl;
@@ -49,6 +50,7 @@ var geometryService; //variable to store the Geometry service
 var serviceRequestLayerId = "serviceRequestLayerID"; //variable to store service request layer id
 var highlightPollLayerId = "highlightPollLayerId"; //Graphics layer object for displaying selected service request
 var tempGraphicsLayerId = "tempGraphicsLayerID"; //variable to store temporary graphics request layer id
+var serviceRequestUpdateLayer = "serviceRequestUpdateID"; //variable to store the updatable layer id
 var enablePhotoUploadiOS; //variable for storing uploading images into iOS devices
 var photoUploadText; //object to store Message displayed for HTML text
 var serviceRequestSymbol; //variable to store service Request Symbol object
@@ -71,7 +73,7 @@ var windowURL = window.location.toString();
 var selectedRequest;
 var rippleColor;
 var locatorRippleSize;
-var requestType;
+var requestTypes;
 var requestId;
 var commentId;
 var featureID;
@@ -91,6 +93,9 @@ var timeouts = {}; //object to store timeout objects
 var searchType; //object to store which search is selected
 var disableFields; //object to store which fields will not be request from user
 var focus = {mapTab: false, onMap: false, mapClick: false}; //Keep track of various focus related values
+var legend; //object to store the legend dijit
+var requestTypes; //object to hold the request type list/options
+var staffMode; //variable to store staff mode options
 
 //This initialization function is called when the DOM elements are ready
 function dojoInit() {
@@ -207,7 +212,9 @@ function dojoInit() {
     infoPopupWidth = responseObject.InfoPopupWidth;
 	if (isTablet) {infoPopupWidth += 20;}
     infoWindowData = responseObject.InfoWindowData;
-	disableFields = responseObject.DisableFields
+	disableFields = responseObject.DisableFields;
+	requestTypes = responseObject.RequestTypes;
+	staffMode = responseObject.StaffMode;
 
 	if (disableFields.Name) {
 		dojo.byId("nameRow").style.display = "none";
@@ -263,6 +270,19 @@ function dojoInit() {
         infoWindow: infoWindow
     });
     dojo.connect(map, "onClick", function (evt) {
+
+		//CanMod: SHIM FOR CHROME, TO DETECT WHEN SERVICE REQUEST IS CLICKED
+		var extentGeom = pointToExtent(map,evt.mapPoint,5);
+		xExtent = extentGeom;
+		var filteredGraphics = dojo.filter(map.getLayer(serviceRequestLayerId).graphics, function(graphic) {
+			return extentGeom.contains(graphic.geometry);
+		})
+		if (filteredGraphics && filteredGraphics.length > 0) {
+			ShowServiceRequestDetails(filteredGraphics[0].geometry,filteredGraphics[0].attributes);
+			return;
+		}
+		//END OF SHIM FOR CHROME
+		
         map.infoWindow.hide();
         selectedMapPoint = null;
         ShowProgressIndicator();
@@ -284,6 +304,11 @@ function dojoInit() {
         startExtent = new esri.geometry.Extent(parseFloat(zoomExtent[0]), parseFloat(zoomExtent[1]), parseFloat(zoomExtent[2]), parseFloat(zoomExtent[3]), map.spatialReference);
         map.setExtent(startExtent);
 		keyboardAccess();
+		legend = new esri.dijit.Legend({map: map},"legend");
+		legend.startup;
+		if (dojo.isIE < 8) {
+			dojo.byId("legendWrap").style.display = "none";
+		}
     });
 
     CreateBaseMapComponent();
@@ -311,6 +336,19 @@ function dojoInit() {
     if (dojo.isIE <= 7) {
 		dojo.byId("trFileUpload").style.display = "none";
     }
+	//CanMod: Staff Mode
+	if (GetQuerystring("mode") == staffMode.Modifier) {
+		if (staffMode.Enabled) {
+			staffMode.active = true;
+			dojo.byId("instructions").innerHTML = intl.staffMode;
+			dojo.byId("instructions").className = "staffMode";
+		}
+		else {
+			setTimeout(function(){
+				alert(messages.getElementsByTagName("staffModeDisabled")[0].childNodes[0].nodeValue);
+			},3000);
+		}
+	}
 }
 
 
@@ -348,6 +386,15 @@ function initializeMap() {
         displayOnPan: false
     });
     map.addLayer(serviceRequestLayer);
+	
+	//CanMod: Seperate the Update and Query Feature Services for security puposes
+	var uLayer = new esri.layers.FeatureLayer(operationalLayers.ServiceRequestUpdateURL, {
+		id: serviceRequestUpdateLayer,
+		outFields: ["*"],
+		visible: false
+	});
+	map.addLayer(uLayer);
+	
     var handle = dojo.connect(serviceRequestLayer, "onUpdateEnd", function (features) {
         serviceRequestSymbol = serviceRequestLayer.renderer.infos[0].symbol;
         var symbolSize = isBrowser ? 25 : 44;
@@ -365,6 +412,7 @@ function initializeMap() {
             ExecuteQueryTask();
         }
         dojo.disconnect(handle);
+		legend.refresh();
     });
 
 
@@ -393,7 +441,6 @@ function initializeMap() {
         displayOnPan: false
     });
     map.addLayer(serviceRequestCommentsLayer);
-
     window.onresize = function () {
         if (!isMobileDevice) {
             ResizeHandler();
@@ -497,7 +544,9 @@ function keyboardAccess() {
 			else if (dojo.indexOf([dojo.keys.DOWN_ARROW,dojo.keys.END,dojo.keys.PAGE_DOWN,dojo.keys.NUMPAD_2,dojo.keys.NUMPAD_1,dojo.keys.NUMPAD_3],kc) >= 0) {
 				dy = zooms[lv] * -1;
 			}
-			map.setExtent(map.extent.offset(dx,dy));
+			if (dx != 0 || dy != 0) {
+				map.setExtent(map.extent.offset(dx,dy));
+			}
 		}
 	});
 	//CanAccess: Keyboard click on map

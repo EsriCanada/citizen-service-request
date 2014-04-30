@@ -4,7 +4,7 @@
  | Copyright 2012 Esri
  |
  | ArcGIS for Canadian Municipalities / ArcGIS pour les municipalités canadiennes
- | Citizen Service Request v10.2.0.1 / Demande de service municipal v10.2.0.1
+ | Citizen Service Request v10.2.0.2 / Demande de service municipal v10.2.0.2
  | This file was modified by Esri Canada - Copyright 2014 Esri Canada
  |
  |
@@ -43,4 +43,5 @@
     <fileSize>Unable to retreive attachment. Request submited without attachment.</fileSize>
     <invalidSearch>No results found</invalidSearch>
 	<requestFailed>Unable to create service request.</requestFailed>
+	<staffModeDisabled>Staff mode is not allowed. It must first be enabled in the application's configuration.</staffModeDisabled>
 </Messages>

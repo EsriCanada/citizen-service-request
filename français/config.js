@@ -4,7 +4,7 @@
  | Copyright 2012 Esri
  |
  | ArcGIS for Canadian Municipalities / ArcGIS pour les municipalités canadiennes
- | Citizen Service Request v10.2.0.1 / Demande de service municipal v10.2.0.1
+ | Citizen Service Request v10.2.0.2 / Demande de service municipal v10.2.0.2
  | This file was modified by Esri Canada - Copyright 2014 Esri Canada
  |
  |
@@ -103,17 +103,19 @@ dojo.declare("js.config", null, {
     // Configurez les couches opérationelles:
 
     OperationalLayers: {
-		//URL de la couche de Demande de service
-        ServiceRequestLayerURL: "http://votreserveur:6080/arcgis/rest/services/CitizenRequest/FeatureServer/0",
+		//URL de la couche de Demande de service (Modèle secure: utilisez la couche Query)
+        ServiceRequestLayerURL: "http://votreserveur:6080/arcgis/rest/services/ServiceRequest_Query/FeatureServer/0",
+		ServiceRequestMobileLayerURL: /*Demande de service mobile*/ "http://votreserveur:6080/arcgis/rest/services/ServiceRequest_Query/FeatureServer/0",
+		//URL de la couche de Demande de service pour les mise à jours
+		ServiceRequestUpdateURL: "http://votreserveur:6080/arcgis/rest/services/CSR2/ServiceRequest_Update/FeatureServer/0",
+		//Modèle simple: utilisez la même couche que ci-dessus; Modèle secure: utilisez la couche Update
         //Clef primaire pour la couche de Demande de service
         RequestId: "${REQUESTID}",
 		//Stade par default (utilisé lors de la création de nouveau commentaire)
 		DefaultStatus: "Non attribué",
 
-        ServiceRequestMobileLayerURL: /*Demande de service mobile*/ "http://votreserveur:6080/arcgis/rest/services/CitizenRequest/FeatureServer/0",
-
-        //URL pour la couche de commentaires
-        ServiceRequestCommentsLayerURL: "http://votreserveur:6080/arcgis/rest/services/CitizenRequest/FeatureServer/1",
+        //URL pour la couche de commentaires (Modèle secure: utilisez la couche Query)
+        ServiceRequestCommentsLayerURL: "http://votreserveur:6080/arcgis/rest/services/ServiceRequest_Query/FeatureServer/1",
         //Clef primaire pour la table de commentaire (Doit s’agencer avec la clef primaire Demande de service)
         CommentId: "${REQUESTID}"
 
@@ -139,6 +141,14 @@ dojo.declare("js.config", null, {
 	
 	// Désactiver les champs de saissie (ne pas demander cette information au près des utilisateurs, enregistrer une valeur Null dans les données)
 	DisableFields: {Name: /*Nom*/ false, Phone: /*Téléphone*/ false, Email: /*Courriel*/ false, Attach: /*Pièce jointe*/ false},
+	
+	// Liste des types de demande de service
+	// Si useDomain est true, la liste de demandes sera remplies en utilisant le domaine de la couche Demande de service
+	// Si useDomain est false, la liste reqList sera utilisé (si seulement un élément est inclue, il sera sélectioné automatiquement)
+	RequestTypes: {
+		useDomain: /*utilisé domaine*/ true,
+		reqList: /*liste requêtes*/ ["Nids de poule","Graffiti","Entretien des arbres"]
+	},
 
 	// La fenêtre contextuelle est affiché lorsqu'un point est sélectionné (sur mobile: lorsque la fenêtre info est agrandi)
 	// Configurez le contenue à affiché dans la fenêtre contextuelle.
@@ -274,6 +284,17 @@ dojo.declare("js.config", null, {
 		Image: "images/language_EN.png",
 		Title: /*Titre*/ "Afficher l'application en anglais",
 		AppURL: /*URL de l'application*/ "http://votreserveur/ArcGIS_CM/CitizenServiceRequest/EN/"
+	},
+			
+	// ------------------------------------------------------------------------------------------------------------------------
+	// MODE DU PERSONNEL
+	// ------------------------------------------------------------------------------------------------------------------------
+	// Le mode du personnel permet de différencier les demandes de services ajouté par le personnel du centre d’appels.
+	// Une fois activé, accédez le mode en ajoutant "?mode=" plus le modificateur configuré ci-dessous à la fin du URL (ex : http://maville.ca/demandeservice/?mode=personnel)
+	StaffMode: {
+		Enabled: /*activer*/ false,
+		Modifier: /*modificateur*/ "staff",
+		IDSuffix: /*suffix identifiant*/ "-S"
 	},
 
     // ------------------------------------------------------------------------------------------------------------------------

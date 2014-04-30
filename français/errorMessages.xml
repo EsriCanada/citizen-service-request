@@ -4,7 +4,7 @@
  | Copyright 2012 Esri
  |
  | ArcGIS for Canadian Municipalities / ArcGIS pour les municipalités canadiennes
- | Citizen Service Request v10.2.0.1 / Demande de service municipal v10.2.0.1
+ | Citizen Service Request v10.2.0.2 / Demande de service municipal v10.2.0.2
  | This file was modified by Esri Canada - Copyright 2014 Esri Canada
  |
  |
@@ -43,4 +43,5 @@
     <fileSize>Incapable de joindre la pièce jointe. Demande créer sans la pièce jointe.</fileSize> <!--Taille de fichier-->
     <invalidSearch>Aucun résultat trouvé.</invalidSearch> <!--Recherche non-valide-->
 	<requestFailed>Incapable de créer une demande de service.</requestFailed> <!--Demande échoué-->
+	<staffModeDisabled>Le mode du personnel n’est pas permis. Ce mode doit être activé dans la configuration de l’application.</staffModeDisabled> <!--Mode du personnel désactivé-->
 </Messages>

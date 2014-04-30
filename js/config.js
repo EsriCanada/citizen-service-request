@@ -4,7 +4,7 @@
  | Copyright 2012 Esri
  |
  | ArcGIS for Canadian Municipalities / ArcGIS pour les municipalités canadiennes
- | Citizen Service Request v10.2.0.1 / Demande de service municipal v10.2.0.1
+ | Citizen Service Request v10.2.0.2 / Demande de service municipal v10.2.0.2
  | This file was modified by Esri Canada - Copyright 2014 Esri Canada
  |
  |
@@ -54,8 +54,8 @@ dojo.declare("js.config", null, {
     // GENERAL SETTINGS
     // ------------------------------------------------------------------------------------------------------------------------
     // Set application title
-    ApplicationName: "Citizen Service Request",
-    ApplicationTitle: "Citizen Service Request",
+    ApplicationName: "Citizen Service Request - v2Dev",
+    ApplicationTitle: "Citizen Service Request - v2Dev",
 	//To meet WCAG 2.0 accessibility standards, the Window Title must also be changed in index.htm
 
     // Set application icon path
@@ -102,17 +102,20 @@ dojo.declare("js.config", null, {
     // Configure operational layers:
 
     OperationalLayers: {
-        //URL used for doing query task on the ServiceRequest layer
-        ServiceRequestLayerURL: "http://yourserver:6080/arcgis/rest/services/CitizenRequest/FeatureServer/0",
+        //URL used for doing query task on the ServiceRequest layer (If using Secured Schema, use query feature service)
+        ServiceRequestLayerURL: "http://yourserver:6080/arcgis/rest/services/ServiceRequest_Query/FeatureServer/0",
+		ServiceRequestMobileLayerURL: "http://yourserver:6080/arcgis/rest/services/ServiceRequest_Query/FeatureServer/0",
+		//URL used for doing updates to the ServiceRequest layer (If using Simple schema, use same as above; If using Secure schema, use update feature service)
+		ServiceRequestUpdateURL: "http://yourserver:6080/arcgis/rest/services/ServiceRequest_Update/FeatureServer/0",
         //Set the primary key attribute for servicerequest
         RequestId: "${REQUESTID}",
 		//Default Status (Status to be set on comment submit)
 		DefaultStatus: "Unassigned",
 
-        ServiceRequestMobileLayerURL: "http://yourserver:6080/arcgis/rest/services/CitizenRequest/FeatureServer/0",
+        
 
-        //URL used for doing query task on the comments layer
-        ServiceRequestCommentsLayerURL: "http://yourserver:6080/arcgis/rest/services/CitizenRequest/FeatureServer/1",
+        //URL used for doing query task on the comments layer (If using Secured schema, use query feature service)
+        ServiceRequestCommentsLayerURL: "http://yourserver:6080/arcgis/rest/services/ServiceRequest_Query/FeatureServer/1",
         //Set the primary key attribute for the comments
         CommentId: "${REQUESTID}"
 
@@ -138,6 +141,14 @@ dojo.declare("js.config", null, {
 	
 	// Disable input boxes (do not request info from user, store null value in data)
 	DisableFields: {Name: false, Phone: false, Email: false, Attach: false},
+	
+	// Service Request Type List
+	// If useDomain is true, it will read the service request types from the service request feature class domain
+	// If useDomain is false, it will use the reqList types (if only one item is included, it will be selected when creating a request)
+	RequestTypes: {
+		useDomain: true,
+		reqList: ["Potholes","Graffiti","Tree Maintenance"]
+	},
 
     // Info-popup is a popup dialog that gets displayed on selecting a feature
     // Set the content to be displayed on the info-Popup. Define labels, field values, field types and field formats
@@ -269,10 +280,21 @@ dojo.declare("js.config", null, {
 	// ------------------------------------------------------------------------------------------------------------------------
 	// Allows you to include a toggle button in the toolbar to switch between two version of the application
 	LanguageButton: {
-		Enabled: true,
+		Enabled: false,
 		Image: "images/language_FR.png",
 		Title: "Switch to French Application",
 		AppURL: "http://yourserver/ArcGIS_CM/CitizenServiceRequest/FR/"
+	},
+			
+	// ------------------------------------------------------------------------------------------------------------------------
+	// STAFF MODE
+	// ------------------------------------------------------------------------------------------------------------------------
+	// Staff mode allows tracking of calls logged by call centre staff by appending a short string to the Request ID
+	// Once enabled, it can be accessed by adding "?mode=" plus the modifier set below to the end of the URL (e.g. http://mycity.ca/servicerequests/?mode=staff)
+	StaffMode: {
+		Enabled: true,
+		Modifier: "staff",
+		IDSuffix: "-S"
 	},
 
     // ------------------------------------------------------------------------------------------------------------------------

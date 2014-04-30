@@ -3,7 +3,7 @@
  | Copyright 2012 Esri
  |
  | ArcGIS for Canadian Municipalities / ArcGIS pour les municipalités canadiennes
- | Citizen Service Request v10.2.0.1 / Demande de service municipal v10.2.0.1
+ | Citizen Service Request v10.2.0.2 / Demande de service municipal v10.2.0.2
  | This file was modified by Esri Canada - Copyright 2014 Esri Canada
  |
  |
@@ -182,19 +182,21 @@ function LocateAddressCML2(suggest,event) {
 	}
     var locatorCML2 = new esri.tasks.Locator(locatorSettings.Locators[0].LocatorURL);
     locatorCML2.outSpatialReference = map.spatialReference;
-    locatorCML2.addressToLocations(params, function (candidates) {
-		var thisSearchTime = (new Date()).getTime();
-        // Discard searches made obsolete by new typing from user
-        if (!lastSearchTime || thisSearchTime > lastSearchTime) {
-			lastSearchTime = (new Date()).getTime();
-			ShowLocatedAddressCML2(candidates,suggest);
-		}
-    },
+	autocomplete(locatorCML2,currSearch,params,suggest);
 
-    function (err) {
+}
+
+// Discard searches made obsolete by new typing from user
+function autocomplete(locatorCML2,currSearch,params,suggest) {
+	locatorCML2.addressToLocations(params, function (candidates) {
+		if (currSearch != dojo.byId("searchInput").value.trim()) {
+			return;
+		}
+		ShowLocatedAddressCML2(candidates,suggest);
+    },
+	function (err) {
 		console.error(err);
     });
-
 }
 
 //Populate candidate address list in address container

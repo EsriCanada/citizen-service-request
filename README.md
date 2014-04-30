@@ -5,6 +5,9 @@ The Citizen Service Request application allows citizens to submit requests for s
 
 The application is highly configurable and works with the [Canadian Municipal Data Model](http://www.arcgis.com/home/item.html?id=0487111bd16a4c2ca757687d588aa783 "Download the Data Model").  It can be deployed and used on desktop, smartphones or tablet devices.
 
+### En français
+Vous trouverez la documentation en français dans la [gallérie d’ArcGIS Online](http://www.arcgis.com/home/item.html?id=a07033009a6542f6bfd71cfbaec00ca7).
+
 ### Try it Live
 
 A preview of this application is available in [English](http://apps.esri.ca/CanadianServiceRequest/ "Try it live") and [French](http://apps.esri.ca/CanadianServiceRequest/fr/ "Essayer l'application en français").

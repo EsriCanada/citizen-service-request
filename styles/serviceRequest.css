@@ -3,7 +3,7 @@
  | Copyright 2012 Esri
  |
  | ArcGIS for Canadian Municipalities / ArcGIS pour les municipalités canadiennes
- | Citizen Service Request v10.2.0.1 / Demande de service municipal v10.2.0.1
+ | Citizen Service Request v10.2.0.2 / Demande de service municipal v10.2.0.2
  | This file was modified by Esri Canada - Copyright 2014 Esri Canada
  |
  | Licensed under the Apache License, Version 2.0 (the "License");
@@ -757,8 +757,45 @@ textarea:
 	left:65px;
 	top:55px;
 	background-color:rgb(70,133,68);
-	background-color:rgba(70,133,68,0.7);
+	background-color:rgba(70,133,68,0.85);
 	z-index:1002;
 	padding:4px;
 	border-radius:4px;
+}
+
+#instructions.staffMode {
+	background-color: orange;
+	font-size: medium;
+	font-weight: bold;
+}
+
+/*---------------------------------------------------------------------------------------------------------*/
+/* Legend */
+
+#legendWrap {
+	position: absolute;
+	z-index: 1000;
+	background-color: rgb(70,133,68);
+	background-color: rgba(70,133,68,0.85);
+	border-radius: 5px;
+	padding: 2px;
+}
+
+.esriLegendService {
+	padding: 0;
+}
+
+.esriLegendService>table {
+	display: none;
+}
+
+.esriLegendService>div {
+}
+
+.esriLegendLayerLabel {
+	display: none;
+}
+
+#legend_imagery {
+	display: none !important;
 }

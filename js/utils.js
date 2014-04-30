@@ -3,7 +3,7 @@
  | Copyright 2012 Esri
  |
  | ArcGIS for Canadian Municipalities / ArcGIS pour les municipalités canadiennes
- | Citizen Service Request v10.2.0.1 / Demande de service municipal v10.2.0.1
+ | Citizen Service Request v10.2.0.2 / Demande de service municipal v10.2.0.2
  | This file was modified by Esri Canada - Copyright 2014 Esri Canada
  |
  |
@@ -37,7 +37,7 @@ function AddReferenceOverlays() {
 
 //Reset service request values
 function ResetRequestFields() {
-    dojo.byId("requestTypeSel").selectedIndex = -1;
+    dojo.byId("requestTypeSel").selectedIndex = requestTypes.single ? 0 : -1;
     dojo.byId('txtDescription').value = "";
     dojo.byId('txtName').value = "";
     dojo.byId('txtPhone').value = "";
@@ -49,7 +49,9 @@ function ResetRequestFields() {
 
 //Show add service request info window
 function AddServiceRequest(mapPoint) {
-	dojo.byId("instructions").style.display = "none";
+	if (!(staffMode.active)) {
+		dojo.byId("instructions").style.display = "none";
+	}
     map.getLayer(highlightPollLayerId).clear();
     map.infoWindow.hide();
     selectedMapPoint = mapPoint;
@@ -99,7 +101,7 @@ function AddServiceRequest(mapPoint) {
             }
         }, 500)
     }
-	dojo.byId("requestTypeSel").selectedIndex = -1;
+	dojo.byId("requestTypeSel").selectedIndex = requestTypes.single ? 0 : -1;
 }
 
 //Show create request container
@@ -483,6 +485,9 @@ function CreateRatingWidget(rating) {
 function SetCreateRequestHeight() {
     var height = (isMobileDevice) ? (dojo.window.getBox().h - 25) : dojo.coords(dojo.byId("divCreateRequestContainer")).h;
     dojo.byId('divCreateRequestScrollContent').style.height = (height - ((isBrowser) ? 105 : 130)) + "px";
+	if (dojo.isIE < 8) {
+		dojo.byId('divCreateRequestScrollContent').style.height = (height - 125) + "px";
+	}
     if (isMobileDevice) {
         dojo.byId('divCreateRequestScrollContent').style.height = (height - 100) + "px";
     }
@@ -527,7 +532,7 @@ function AddRequestComment() {
 
     dojo.byId('btnAddComments').disabled = true;
     map.getLayer(serviceRequestCommentsLayerId).applyEdits([commentGraphic], null, null, function (msg) {
-        if (msg[0].error) { } else {
+        if (msg[0].error) {console.error(msg);} else {
             var table = dojo.query('table', dojo.byId("divCommentsContent"));
             if (table.length > 0) {
                 var x = dojo.query("tr[noComments = 'true']", table[0]);
@@ -739,24 +744,37 @@ function SubmitIssueDetails() {
     serviceRequestAttributes[serviceRequestFields.RequestDateFieldName] = date.utcMsFromTimestamp(date.localToUtc(date.localTimestampNow()));
 
     var serviceRequestGraphic = new esri.Graphic(mapPoint, null, serviceRequestAttributes, null);
-    map.getLayer(serviceRequestLayerId).applyEdits([serviceRequestGraphic], null, null, function (addResults) {
+    map.getLayer(serviceRequestUpdateLayer).applyEdits([serviceRequestGraphic], null, null, function (addResults) {
         if (addResults[0].success) {
             var objectIdField = map.getLayer(serviceRequestLayerId).objectIdField;
             var requestID = {};
-            requestID[serviceRequestFields.RequestIdFieldName] = String(addResults[0].objectId);
-            requestID[objectIdField] = addResults[0].objectId;
+			//CanMode: Staff Mode Suffix
+			if (staffMode.active) {
+				requestID[serviceRequestFields.RequestIdFieldName] = String(addResults[0].objectId) + staffMode.IDSuffix;
+			}
+			else {
+				requestID[serviceRequestFields.RequestIdFieldName] = String(addResults[0].objectId);
+			}
+			requestID[objectIdField] = addResults[0].objectId;
             var requestGraphic = new esri.Graphic(mapPoint, null, requestID, null);
-            map.getLayer(serviceRequestLayerId).applyEdits(null, [requestGraphic], null, function () {
-                serviceRequestAttributes[serviceRequestFields.RequestIdFieldName] = String(addResults[0].objectId);
+            map.getLayer(serviceRequestUpdateLayer).applyEdits(null, [requestGraphic], null, function () {
+				if (staffMode.active) {
+					serviceRequestAttributes[serviceRequestFields.RequestIdFieldName] = String(addResults[0].objectId) + staffMode.IDSuffix;
+				}
+				else {
+					serviceRequestAttributes[serviceRequestFields.RequestIdFieldName] = String(addResults[0].objectId);
+				}
                 if (dojo.byId('txtFileName').value != "") {
-                    map.getLayer(serviceRequestLayerId).addAttachment(addResults[0].objectId, dojo.byId('formFile'), function (sucess) {
+                    map.getLayer(serviceRequestUpdateLayer).addAttachment(addResults[0].objectId, dojo.byId('formFile'), function (sucess) {
                         ShowServiceRequestDetails(mapPoint, serviceRequestGraphic.attributes);
+						map.getLayer(serviceRequestLayerId).refresh();
                         HideProgressIndicator();
                         ResetRequestFields();
                         HideCreateRequestContainer();
                     }, function (err) {
 						console.error("Failed to retreive attachment",err);
 						ShowServiceRequestDetails(mapPoint, serviceRequestGraphic.attributes);
+						map.getLayer(serviceRequestLayerId).refresh();
 						HideProgressIndicator();
 						ResetRequestFields();
 						HideCreateRequestContainer();
@@ -766,6 +784,7 @@ function SubmitIssueDetails() {
 
                 } else {
                     ShowServiceRequestDetails(mapPoint, serviceRequestGraphic.attributes);
+					map.getLayer(serviceRequestLayerId).refresh();
                     HideProgressIndicator();
                     ResetRequestFields();
                     HideCreateRequestContainer();
@@ -773,13 +792,13 @@ function SubmitIssueDetails() {
 
             }, function (err) {
                 HideProgressIndicator();
-                ShowSpanErrorMessage("spanServiceErrorMessage", messages.getElementByTagName("requestFailed")[0].childNodes[0].nodeValue);
+                ShowSpanErrorMessage("spanServiceErrorMessage", messages.getElementsByTagName("requestFailed")[0].childNodes[0].nodeValue);
 
             });
         }
     }, function (err) {
         HideProgressIndicator();
-        ShowSpanErrorMessage("spanServiceErrorMessage", messages.getElementByTagName("requestFailed")[0].childNodes[0].nodeValue);
+        ShowSpanErrorMessage("spanServiceErrorMessage", messages.getElementsByTagName("requestFailed")[0].childNodes[0].nodeValue);
     });
 }
 
@@ -1060,15 +1079,31 @@ function CreateRequestTypesList(serviceRequestLayerFields) {
         dojo.byId('divCreateRequestContainer').style.width = infoPopupWidth + "px";
         dojo.byId('divCreateRequestContainer').style.height = infoPopupHeight + "px";
     }
-
-    for (var i = 0; i < serviceRequestFields.length; i++) {
-		var opt = document.createElement("option");
-		opt.value = serviceRequestFields[i].code;
-		opt.innerHTML = serviceRequestFields[i].name;
-		dojo.byId("requestTypeSel").appendChild(opt);
-		
-
-    }
+	
+	var sel = dojo.byId("requestTypeSel");
+	dojo.removeAttr(sel,"disabled");
+	sel.setAttribute("size","4");
+	if (requestTypes.useDomain) {
+		for (var i = 0; i < serviceRequestFields.length; i++) {
+			var opt = document.createElement("option");
+			opt.value = serviceRequestFields[i].code;
+			opt.innerHTML = serviceRequestFields[i].name;
+			sel.appendChild(opt);		
+		}
+	}
+	else {
+		dojo.forEach(requestTypes.reqList,function(item,i) {
+			var opt = document.createElement("option");
+			opt.value = item;
+			opt.innerHTML = item;
+			sel.appendChild(opt);
+		});
+		if (requestTypes.reqList.length == 1) {
+			sel.setAttribute("size","1");
+			sel.setAttribute("disabled","true");
+			requestTypes.single = true;
+		}
+	}
 
 }
 
@@ -1290,7 +1325,9 @@ function showHideSearch(closeOnly) {
 		dojo.byId("imgSearch").setAttribute("aria-expanded","false");
 	}
 	else if (disp == "none" && !closeOnly) {
-		dojo.byId("instructions").style.display = "none";
+		if (!(staffMode.active)) {
+			dojo.byId("instructions").style.display = "none";
+		}
 		HideBaseMapLayerContainer();
 		HideShareAppContainer();
 		dojo.byId("divAddressSearch").style.display = "block";

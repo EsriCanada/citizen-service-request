@@ -1,7 +1,7 @@
 /*FRANÇAIS
  |
  | ArcGIS for Canadian Municipalities / ArcGIS pour les municipalités canadiennes
- | Citizen Service Request v10.2.0.1 / Demande de service municipal v10.2.0.1
+ | Citizen Service Request v10.2.0.2 / Demande de service municipal v10.2.0.2
  | This file was written by Esri Canada - Copyright 2014 Esri Canada
  |
  |
@@ -64,6 +64,7 @@ define({
 	//Instructions
 	instrTitle: /*Titre des instructions*/ "Afin de créer une nouvelle demande de service:",
 	instrHTML: /*HTML des instructions*/ "<ol><li>Identifiez votre emplacement en recherchant pour une adresse (bar-d’outils) ou cliquez sur la carte.</li><li>Remplissez et soumettez le formulaire de demande de service.</li></ol>",
+	staffMode: /*Mode du personnel*/ "Mode du personnel actif",
 	
 	//Accessible Map (only visible when accessing map with keyboard and/or screen reader)
 	//Carte accessible (seulement visible lorsque la carte est accéddée avec le clavier ou un lecteur d'écran)

@@ -7,7 +7,7 @@
 	 | Copyright 2012 Esri
 	 |
 	 | ArcGIS for Canadian Municipalities / ArcGIS pour les municipalités canadiennes
-	 | Citizen Service Request v10.2.0.1 / Demande de service municipal v10.2.0.1
+	 | Citizen Service Request v10.2.0.2 / Demande de service municipal v10.2.0.2
 	 | This file was modified by Esri Canada - Copyright 2014 Esri Canada
 	 |
 	 |
@@ -30,8 +30,8 @@
 	<link rel="shortcut icon" type="image/png" href="images/favicon.png">
 	<link rel="apple-touch-icon" href="images/logo.png">
     <link rel="apple-touch-icon-precomposed" href="images/logo.png">
-    <link id="stylesheet" href='http://js.arcgis.com/3.8/js/dojo/dojox/mobile/themes/iphone/iphone.css' rel='stylesheet'>
-    <link rel="stylesheet" type="text/css" href="http://js.arcgis.com/3.8/js/esri/css/esri.css">
+    <link id="stylesheet" href='http://js.arcgis.com/3.9/js/dojo/dojox/mobile/themes/iphone/iphone.css' rel='stylesheet'>
+    <link rel="stylesheet" type="text/css" href="http://js.arcgis.com/3.9/js/esri/css/esri.css">
     <link href="styles/serviceRequest.css" rel="stylesheet" type="text/css">
     <link rel="Stylesheet" id="dynamicStyleSheet">
     <script type="text/javascript" src="js/baseMapGallery.js"></script>
@@ -47,7 +47,7 @@
                 }]
             };
     </script>
-    <script type="text/javascript" src="http://js.arcgis.com/3.8"></script>
+    <script type="text/javascript" src="http://js.arcgis.com/3.9"></script>
     <script type="text/javascript" src="js/baseMapGallery.js"></script>
     <script type="text/javascript" src="js/modernizr-2.5.3.js"></script>
     <script type="text/javascript" src="js/locator.js"></script>
@@ -209,7 +209,7 @@
 										</tr>
 									</table>
 								</div>
-								<div id="spancreateerror" style="width: 100%; height: 15px; border: 2px;
+								<div id="spancreateerror" style="width: 100%; height: 30px; border: 2px;
 									vertical-align: top; padding-top: 0px; text-align:left;">
 									<span id="spanServiceErrorMessage" style="color: Yellow; margin-left: 4px; vertical-align: middle;">
 									</span>
@@ -344,6 +344,9 @@
             </tr>
         </table>
     </div>
+	<div id="legendWrap">
+		<div id="legend"></div>
+	</div>
     <div id="divLoadingIndicator" class="divLoadingIndicator" style="display: none;">
         <table cellpadding="0px" cellspacing="0px" style="width: 100%; height: 100%;">
             <tr align="center" valign="middle">
